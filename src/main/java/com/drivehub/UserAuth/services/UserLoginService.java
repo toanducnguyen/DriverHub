@@ -26,8 +26,16 @@ public class UserLoginService {
     @Autowired
     private UserAuthRepository userLoginRepository;
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Output {
+        public String accessToken;
+        public long userId;
+    }
 
-    public String login(Input loginInput){
+
+    public Output login(Input loginInput){
         String hashedPassword = hashPassword(loginInput.getPassword());
         UserAuth userAuth = userLoginRepository.findByEmail(loginInput.getEmail());
         if(userAuth == null){
@@ -36,7 +44,7 @@ public class UserLoginService {
         if (hashedPassword.equals(userAuth.getPassword())){
             Session session = new Session(userAuth.getId(), userAuth.isAdmin(), Instant.now().plus(2,  ChronoUnit.HOURS));
             String accessToken = session.genAccessToken(secretKey);
-            return accessToken;
+            return new Output(accessToken, userAuth.getId());
         } else {
             throw new Error("Wrong email or password");
         }

@@ -6,6 +6,7 @@ import com.drivehub.UserAuth.entitys.UserAuth;
 import com.drivehub.UserAuth.repositorys.UserAuthRepository;
 import jakarta.xml.bind.DatatypeConverter;
 import lombok.AllArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -19,6 +20,10 @@ public class UserSignUpService {
 
 
     public boolean signUp(Input signUpInput){
+        UserAuth userAuth = userSignUpRepository.findByEmail(signUpInput.getEmail());
+        if(userAuth != null) {
+            return false;
+        }
         String hashedPassword = hashPassword(signUpInput.getPassword());
         UserAuth userSignUp = new UserAuth(signUpInput.getEmail(),hashedPassword,false );
         userSignUpRepository.save(userSignUp);

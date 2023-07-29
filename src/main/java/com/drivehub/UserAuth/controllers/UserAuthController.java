@@ -6,10 +6,13 @@ import com.drivehub.UserAuth.services.UserLoginService;
 import com.drivehub.UserAuth.services.UserSignUpService;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 import static com.drivehub.share.SercretKey.secretKey;
 
@@ -23,19 +26,28 @@ public class UserAuthController {
 
 
     @PostMapping(value = "/signup")
-    public boolean signUp(@RequestBody Input signUpInput){
-        return userSignUpService.signUp(signUpInput);
+    public ResponseEntity<?> signUp(@RequestBody Input signUpInput){
+        boolean isSuccess = userSignUpService.signUp(signUpInput);
+        if(isSuccess == true) {
+            return ResponseEntity.ok("Sign up successfully");
+        } else {
+            return ResponseEntity.status(400).body("Email already existed");
+        }
     }
 
     @PostMapping(value = "/signup/admin")
-    public boolean signUpAdmin(@RequestHeader("access-token") String accessToken, @RequestBody Input signUpInput){
-        Claims body = Session.decodeAccessToken(accessToken, secretKey);
-        return userSignUpService.signUpAdmin(signUpInput);
+    public ResponseEntity<?> signUpAdmin(@RequestHeader("access-token") String accessToken, @RequestBody Input signUpInput){
+        Map<String, Object> userData = Session.decodeAccessToken(accessToken, secretKey);
+        if(userData.get("isAdmin").equals(true)) {
+            return ResponseEntity.ok(userSignUpService.signUpAdmin(signUpInput));
+        }
+        //not permission to call api (only admin can call this api) (http 403)
+        return ResponseEntity.status(403).body("Only admin can call this api");
     }
 
     @PostMapping(value = "/login")
-    public String login(@RequestBody Input loginInput) {
-        return userLoginService.login(loginInput);
+    public ResponseEntity<?> login(@RequestBody Input loginInput) {
+        return ResponseEntity.ok(userLoginService.login(loginInput));
     }
 
 

@@ -15,6 +15,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Table()
@@ -36,22 +38,28 @@ public class Session {
     }
 
     public String genAccessToken(String secret){
-        byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(secret);
-        Key signingKey = new SecretKeySpec(apiKeySecretBytes, SignatureAlgorithm.HS512.getJcaName());
+        //generate claim data from token
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", getUserId());
+        claims.put("isAdmin", isAdmin());
         //way to create access token
-        JwtBuilder builder = Jwts.builder()
+        String token = Jwts.builder()
                 .setId(String.valueOf(getId()))
                 .setExpiration(Date.from(getExpiredAt()))
                 .setIssuedAt(new Date())
-//                .claim("data", new String[]{String.valueOf(getUserId()), String.valueOf(isAdmin())})
-                .claim("data", getUserId())
-                .signWith(SignatureAlgorithm.HS512, signingKey);
-        String token = builder.compact();
-        return "hhihi";
+                .claim("claims", claims)
+                .signWith(SignatureAlgorithm.HS512, secret)
+                .compact();
+        return token;
     }
 
-    public static Claims decodeAccessToken(String accessToken, String secret) {
+    public static Map<String, Object> decodeAccessToken(String accessToken, String secret) {
         Claims body = Jwts.parser().setSigningKey(secret).parseClaimsJws(accessToken).getBody();
-        return body;
+        Date expireDate = body.getExpiration();
+        if(expireDate.compareTo(Date.from(Instant.now())) < 0) {
+            throw new Error("Session has expired");
+        }
+        Map<String, Object> claims = body.get("claims", Map.class);
+        return claims;
     }
 }
