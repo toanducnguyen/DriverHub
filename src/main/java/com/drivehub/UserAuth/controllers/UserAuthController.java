@@ -27,11 +27,11 @@ public class UserAuthController {
 
     @PostMapping(value = "/signup")
     public ResponseEntity<?> signUp(@RequestBody Input signUpInput){
-        boolean isSuccess = userSignUpService.signUp(signUpInput);
-        if(isSuccess == true) {
+        try {
+            userSignUpService.signUp(signUpInput);
             return ResponseEntity.ok("Sign up successfully");
-        } else {
-            return ResponseEntity.status(400).body("Email already existed");
+        } catch (Throwable e){
+            return  ResponseEntity.status(400).body(e.getMessage());
         }
     }
 
@@ -47,9 +47,11 @@ public class UserAuthController {
 
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@RequestBody Input loginInput) {
-        return ResponseEntity.ok(userLoginService.login(loginInput));
+        try{
+            return ResponseEntity.ok(userLoginService.login(loginInput));
+        }catch (Error e){
+            return  ResponseEntity.status(400).body(e.getMessage());
+        }
     }
-
-
 
 }

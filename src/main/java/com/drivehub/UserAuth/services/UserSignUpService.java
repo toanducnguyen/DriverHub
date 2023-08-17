@@ -19,18 +19,19 @@ public class UserSignUpService {
     private  UserInfoService userInfoService;
 
 
-    public boolean signUp(Input signUpInput){
+    public boolean signUp(Input signUpInput) {
         UserAuth userAuth = userSignUpRepository.findByEmail(signUpInput.getEmail());
-        if(userAuth != null) {
-            return false;
+        if (userAuth != null) {
+            throw new Error("Email already existed");
         }
         String hashedPassword = hashPassword(signUpInput.getPassword());
-        UserAuth userSignUp = new UserAuth(signUpInput.getEmail(),hashedPassword,false );
+        UserAuth userSignUp = new UserAuth(signUpInput.getEmail(), hashedPassword, false);
         userSignUpRepository.save(userSignUp);
         //todo: create & save user info with userloginId
         userInfoService.createUserInfo(userSignUp.getId());
         return true;
     }
+
     public boolean signUpAdmin(Input signUpInput){
         String hashedPassword = hashPassword(signUpInput.getPassword());
         UserAuth userLogin = new UserAuth(signUpInput.getEmail(),hashedPassword,true );

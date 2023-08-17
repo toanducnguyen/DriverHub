@@ -21,9 +21,7 @@ import static com.drivehub.share.SercretKey.secretKey;
 
 @Service
 @AllArgsConstructor
-@NoArgsConstructor
 public class UserLoginService {
-    @Autowired
     private UserAuthRepository userLoginRepository;
 
     @Data
