@@ -1,6 +1,5 @@
 package com.drivehub.CartList.services;
 
-import com.drivehub.CartList.entities.statusEnum;
 import com.drivehub.Product.entitys.Products;
 import com.drivehub.Product.repositorys.ProductRepository;
 import com.drivehub.CartList.entities.CartList;
@@ -24,7 +23,7 @@ public class CartListService {
         if (productRepository.findById(id).isEmpty()){
             throw new Error("loi");
         }
-        CartList cartList =new CartList(userId,id, statusEnum.Pending);
+        CartList cartList =new CartList(userId,id, CartList.statusEnum.Pending);
         cartListRepository.save(cartList);
     }
     public void deleteCartList(long userId, long productId){

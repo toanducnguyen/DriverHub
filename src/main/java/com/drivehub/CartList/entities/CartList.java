@@ -1,12 +1,9 @@
 package com.drivehub.CartList.entities;
 
-import com.drivehub.Product.entitys.Products;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.Optional;
 
 @Entity
 @Getter
@@ -27,9 +24,13 @@ public class CartList {
     @Enumerated(EnumType.STRING)
     private statusEnum statusEnum;
 
-    public CartList(long userId, long productId, com.drivehub.CartList.entities.statusEnum statusEnum) {
+    public CartList(long userId, long productId, CartList.statusEnum statusEnum) {
         this.userId = userId;
         this.productId = productId;
         this.statusEnum = statusEnum;
+    }
+
+    public enum statusEnum {
+        Pending,Paid,Cancelled;
     }
 }
