@@ -1,13 +1,16 @@
 package com.drivehub.Product.services;
 
+import com.drivehub.Product.entitys.ProductCriteria;
 import com.drivehub.Product.entitys.Products;
 import com.drivehub.Product.repositorys.ProductRepository;
+import com.drivehub.Product.specification.ProductSpecification;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ProductService {
     private ProductRepository productRepository;
+
 
     @Data
     @NoArgsConstructor
@@ -43,6 +47,7 @@ public class ProductService {
             throw new Error("not found this product");
         }
         Products products = productsOpt.get();
+
         if (productInput.name != null){
             products.setName(productInput.brand);
         }
@@ -74,6 +79,16 @@ public class ProductService {
     public List<Products> getByCategory(String category,int page, int size) {
         Pageable pageRequest = PageRequest.of(page, size);
         List<Products> products = productRepository.findByCategory(category);
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min((start + pageRequest.getPageSize()), products.size());
+        List<Products> pageContent = products.subList(start, end);
+        return pageContent;
+    }
+
+    public List<Products> filter(ProductCriteria productCriteria,int page ,int size){
+        Pageable pageRequest = PageRequest.of(page, size);
+        Specification<Products> spe = ProductSpecification.toSpecification(productCriteria);
+        List<Products> products = productRepository.findBy(spe);
         int start = (int) pageRequest.getOffset();
         int end = Math.min((start + pageRequest.getPageSize()), products.size());
         List<Products> pageContent = products.subList(start, end);

@@ -35,6 +35,7 @@ public class CartListService {
     }
 
     public List<Products> showCartList(long userId,int page, int  size) {
+
         Pageable pageRequest = PageRequest.of(page, size);
         List<CartList> cartLists = cartListRepository.findAllByUserId(userId);
         if (cartLists.isEmpty()){
@@ -56,4 +57,5 @@ public class CartListService {
         List<Products> pageContent = products.subList(start, end);
         return pageContent;
     }
+
 }

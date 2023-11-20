@@ -1,5 +1,6 @@
 package com.drivehub.Product.controllers;
 
+import com.drivehub.Product.entitys.ProductCriteria;
 import com.drivehub.Product.services.ProductService;
 import com.drivehub.UserAuth.Input.Input;
 import com.drivehub.UserAuth.entitys.Session;
@@ -48,17 +49,12 @@ public class ProductController {
         //not permission to call api (only admin can call this api) (http 403)
         return ResponseEntity.status(403).body("Only admin can call this api");
     }
-    @GetMapping(value = "/products")
-    public ResponseEntity<?> getListProduct(@RequestBody(required = false) String category,
+    @PostMapping(value = "/products")
+    public ResponseEntity<?> getListProduct(@RequestBody(required = false)ProductCriteria productCriteria,
                                             @RequestParam int page,
                                             @RequestParam int size)
     {
-        if (category == null){
-            productService.show(page,size);
-            return ResponseEntity.ok(productService.show(page,size));
-        }
-        productService.getByCategory(category,page,size);
-        return ResponseEntity.ok(productService.getByCategory(category,page,size));
+        return ResponseEntity.ok(productService.filter(productCriteria,page,size));
     }
 
 }
